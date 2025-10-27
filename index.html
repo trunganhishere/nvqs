@@ -158,7 +158,7 @@
         <input type="text" id="hoten" placeholder="Họ và tên" required>
         <input type="text" id="thongtin" placeholder="Thông tin liên hệ (email / số điện thoại)" required>
         <textarea id="loinhan" placeholder="Lời nhắn gửi tới tương lai..." required></textarea>
-        <button type="submit">Gửi Tin Nhắn</button>
+        <button id="sendMessage" type="submit">Gửi Tin Nhắn</button>
       </form>
       <p id="messageStatus"></p>
     </div>
@@ -166,38 +166,37 @@
 
   <script>
   // ========== FORM GỬI TIN NHẮN ==========
-  const form = document.getElementById("messageForm");
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = {
-        hoten: document.getElementById("hoten").value.trim(),
-        thongtin: document.getElementById("thongtin").value.trim(),
-        loinhan: document.getElementById("loinhan").value.trim()
-      };
-      const btn = form.querySelector("button[type='submit']");
-      btn.disabled = true;
-      btn.textContent = "Đang gửi...";
-      try {
-        await fetch("https://script.google.com/macros/s/AKfycbzoQQ4nRmVvjN7PtorGQEXYjvfAmlM9UVX6_nLtxmhFbvDQ8ou_1Dy7rzPG3hr6kwv3/exec", {
-          method: "POST",
-          mode: "no-cors",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(data)
-        });
-        document.getElementById("messageStatus").textContent = "🎉 Gửi thành công! Tớ sẽ phản hồi lại sớm! ❤️";
-        form.reset();
-      } catch (err) {
-        document.getElementById("messageStatus").textContent = "⚠️ Gửi thất bại, thử lại nhé!";
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Gửi Tin Nhắn";
-      }
-    });
-  }
+  // const form = document.getElementById("messageForm");
+  // if (form) {
+  //   form.addEventListener("submit", async (e) => {
+  //     e.preventDefault();
+  //     const data = {
+  //       hoten: document.getElementById("hoten").value.trim(),
+  //       thongtin: document.getElementById("thongtin").value.trim(),
+  //       loinhan: document.getElementById("loinhan").value.trim()
+  //     };
+  //     const btn = form.querySelector("button[type='submit']");
+  //     btn.disabled = true;
+  //     btn.textContent = "Đang gửi...";
+  //     try {
+  //       await fetch("https://script.google.com/macros/s/AKfycbzoQQ4nRmVvjN7PtorGQEXYjvfAmlM9UVX6_nLtxmhFbvDQ8ou_1Dy7rzPG3hr6kwv3/exec", {
+  //         method: "POST",
+  //         mode: "no-cors",
+  //         headers: {"Content-Type": "application/json"},
+  //         body: JSON.stringify(data)
+  //       });
+  //       document.getElementById("messageStatus").textContent = "🎉 Gửi thành công! Tớ sẽ phản hồi lại sớm! ❤️";
+  //       form.reset();
+  //     } catch (err) {
+  //       document.getElementById("messageStatus").textContent = "⚠️ Gửi thất bại, thử lại nhé!";
+  //     } finally {
+  //       btn.disabled = false;
+  //       btn.textContent = "Gửi Tin Nhắn";
+  //     }
+  //   });
+  // }
 
   // ========== ĐỒNG HỒ ==========
-  // 👉 Thử đọc lại mốc đích trong localStorage
   const target = new Date("2028-02-01T00:00:00");
     target.setFullYear(target.getFullYear());
 
@@ -268,8 +267,74 @@
       root.style.setProperty("--glass","rgba(255,255,255,0.06)");
     }
   });
+
+// ================== HÀM LẤY VỊ TRÍ NGƯỜI DÙNG ==================
+async function getCurrentPosition() {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve("Không hỗ trợ lấy vị trí");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const adr = await reverseGeocode(latitude, longitude);
+      resolve(`${latitude}, ${longitude}${adr ? " — " + adr : ""}`);
+    }, (err) => {
+      console.warn("Không thể lấy vị trí:", err.message);
+      resolve("Người dùng từ chối quyền truy cập vị trí");
+    });
+  });
+}
+
+async function reverseGeocode(lat, lon) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
+    if (!res.ok) throw new Error("Reverse geocode failed");
+    const data = await res.json();
+    return data.display_name;
+  } catch {
+    return null;
+  }
+}
+
+
+// ================== FORM GỬI TIN NHẮN ==================
+const form = document.getElementById("messageForm");
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = form.querySelector("button[type='submit']");
+  const statusEl = document.getElementById("messageStatus");
+  btn.disabled = true;
+  btn.textContent = "Đang gửi...";
+
+  const vitri = await getCurrentPosition();
+
+  const data = {
+    hoten: document.getElementById("hoten").value.trim(),
+    thongtin: document.getElementById("thongtin").value.trim(),
+    loinhan: document.getElementById("loinhan").value.trim(),
+    vitri
+  };
+
+  try {
+    await fetch("https://script.google.com/macros/s/AKfycbz6QyXy1O9J7Kz81GmSoIRdB5gex5mmQDNyt5bRPrEgu_QqX7Y60Ho5SjHX-atoWiU/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    statusEl.textContent = "🎉 Gửi thành công! Cảm ơn bạn rất nhiều ❤️";
+    form.reset();
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "⚠️ Gửi thất bại, thử lại nhé!";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Gửi Tin Nhắn";
+  }
+});
+
   </script>
 </body>
 </html>
-
-
