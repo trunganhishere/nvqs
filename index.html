@@ -206,8 +206,7 @@
     target = new Date(parseInt(savedTarget));
   } else {
     // Nếu chưa có, tạo mới + lưu vào localStorage
-    target = new Date();
-    target.setFullYear(target.getFullYear() + 2);
+    const targetDate = new Date("2027-10-27T00:00:00").getTime();
     localStorage.setItem("countdownTarget", target.getTime());
   }
 
