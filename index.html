@@ -199,16 +199,9 @@
   // ========== ĐỒNG HỒ ==========
   // 👉 Thử đọc lại mốc đích trong localStorage
   let savedTarget = localStorage.getItem("countdownTarget");
-  let target;
-
-  if (savedTarget) {
-    // Nếu có sẵn, lấy lại
-    target = new Date(parseInt(savedTarget));
-  } else {
-    // Nếu chưa có, tạo mới + lưu vào localStorage
-    const targetDate = new Date("2027-10-27T00:00:00").getTime();
+  const target = new Date("2028-02-01T00:00:00");
+    target.setFullYear(target.getFullYear());
     localStorage.setItem("countdownTarget", target.getTime());
-  }
 
   // Hiển thị timezone và ngày đích
   const tzEl = document.getElementById("tz");
@@ -240,8 +233,10 @@
 
     // Nếu hết thời gian → reset localStorage
     if (diff <= 0) {
-      localStorage.removeItem("countdownTarget");
-      clearInterval(timer);
+      dEl.textContent = "❤️";
+    hEl.textContent = "❤️";
+    mEl.textContent = "❤️";
+    sEl.textContent = "❤️";
     }
   }
 
