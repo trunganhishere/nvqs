@@ -197,32 +197,58 @@
   }
 
   // ========== ĐỒNG HỒ ==========
-  const target = new Date();
-  target.setFullYear(target.getFullYear() + 2);
+  // 👉 Thử đọc lại mốc đích trong localStorage
+  let savedTarget = localStorage.getItem("countdownTarget");
+  let target;
+
+  if (savedTarget) {
+    // Nếu có sẵn, lấy lại
+    target = new Date(parseInt(savedTarget));
+  } else {
+    // Nếu chưa có, tạo mới + lưu vào localStorage
+    target = new Date();
+    target.setFullYear(target.getFullYear() + 2);
+    localStorage.setItem("countdownTarget", target.getTime());
+  }
+
+  // Hiển thị timezone và ngày đích
   const tzEl = document.getElementById("tz");
   tzEl.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   document.getElementById("targetText").textContent = target.toLocaleString();
 
+  // Lấy các phần tử hiển thị
   const dEl = document.getElementById("days");
   const hEl = document.getElementById("hours");
   const mEl = document.getElementById("minutes");
   const sEl = document.getElementById("seconds");
 
+  // Hàm cập nhật đồng hồ
   function tick() {
     const now = new Date();
     let diff = target - now;
     if (diff < 0) diff = 0;
+
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff / 3600000) % 24);
     const m = Math.floor((diff / 60000) % 60);
     const s = Math.floor((diff / 1000) % 60);
+
     dEl.textContent = d;
     hEl.textContent = h.toString().padStart(2, '0');
     mEl.textContent = m.toString().padStart(2, '0');
     sEl.textContent = s.toString().padStart(2, '0');
+
+    // Nếu hết thời gian → reset localStorage
+    if (diff <= 0) {
+      localStorage.removeItem("countdownTarget");
+      clearInterval(timer);
+    }
   }
+
+  // Gọi lần đầu + cập nhật mỗi giây
   tick();
-  setInterval(tick, 1000);
+  const timer = setInterval(tick, 1000);
 
   // ========== SAO CHÉP LINK ==========
   document.getElementById("copyBtn").addEventListener("click", async () => {
