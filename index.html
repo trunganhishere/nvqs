@@ -198,10 +198,8 @@
 
   // ========== ĐỒNG HỒ ==========
   // 👉 Thử đọc lại mốc đích trong localStorage
-  let savedTarget = localStorage.getItem("countdownTarget");
   const target = new Date("2028-02-01T00:00:00");
     target.setFullYear(target.getFullYear());
-    localStorage.setItem("countdownTarget", target.getTime());
 
   // Hiển thị timezone và ngày đích
   const tzEl = document.getElementById("tz");
@@ -273,4 +271,5 @@
   </script>
 </body>
 </html>
+
 
