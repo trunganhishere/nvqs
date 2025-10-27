@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Đếm ngược 2 năm ⏳</title>
+  <style>
+    :root {
+      --bg:#0f1724; --card:#0b1220;
+      --accent:#7c3aed;
+      --glass:rgba(255,255,255,0.06);
+      --text:#ffffff;
+      --text-muted:rgba(255,255,255,0.7);
+      color-scheme: dark;
+    }
+    * {box-sizing:border-box;}
+    html,body {
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent),
+                 radial-gradient(900px 400px at 90% 90%, rgba(14,165,233,0.06), transparent),
+                 var(--bg);
+      color:var(--text);
+    }
+    .container {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      min-height:100vh;
+      padding:40px 20px;
+    }
+    .card {
+      width:100%;
+      max-width:900px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:18px;
+      padding:28px;
+      margin-bottom:40px;
+      box-shadow:0 10px 30px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+      text-align:left;
+    }
+    .logo {
+      width:56px;height:56px;border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),#06b6d4);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;color:white;font-size:20px;
+    }
+    h1 {margin:0;font-size:20px;}
+    .lead {margin:0;color:var(--text-muted);}
+    .countdown {
+      display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px;
+    }
+    .timebox {
+      background:var(--glass);
+      backdrop-filter:blur(6px);
+      padding:18px;
+      border-radius:12px;
+      text-align:center;
+      box-shadow:inset 0 -6px 18px rgba(0,0,0,0.3);
+    }
+    .number {font-size:36px;font-weight:800;color:var(--text);}
+    .label {margin-top:6px;font-size:13px;color:var(--text-muted);}
+    .footer {margin-top:18px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;}
+    .badge {padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:13px;}
+    .message-section {
+      width:100%;
+      max-width:700px;
+      text-align:center;
+      margin-top:10px;
+    }
+    .message-section h2 {color:var(--text-muted);}
+    .message-section input,
+    .message-section textarea {
+      width:100%;
+      margin:10px 0;
+      border-radius:10px;
+      border:none;
+      padding:12px;
+      font-size:1rem;
+      background-color:rgba(255,255,255,0.1);
+      color:#fff;
+      outline:none;
+      box-shadow:0 0 10px rgba(255,255,255,0.15);
+    }
+    .message-section textarea {height:120px;resize:none;}
+    .message-section button {
+      background:linear-gradient(135deg,#ff7eb3,#ff758c);
+      color:white;
+      border:none;
+      padding:10px 25px;
+      font-size:1rem;
+      border-radius:20px;
+      cursor:pointer;
+      transition:0.3s;
+    }
+    .message-section button:hover {
+      transform:scale(1.05);
+      background:linear-gradient(135deg,#ff92b9,#ff86a3);
+    }
+    #messageStatus {margin-top:10px;font-size:1rem;color:#ffd6e0;}
+    input, textarea {
+  color-scheme: dark light;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <header>
+        <div class="title">
+          <div class="logo">TA</div>
+          <div>
+            <h1>Trung Anh đi nghĩa vụ òi! hẹn gặp lại trong ⏳</h1>
+            <p class="lead">Mục tiêu: <span id="targetText"></span></p>
+          </div>
+        </div>
+        <button id="toggleTheme">🌗 Giao diện</button>
+      </header>
+
+      <div class="countdown" id="countdown">
+        <div class="timebox">
+          <div class="number" id="days">0</div>
+          <div class="label">Ngày</div>
+        </div>
+        <div class="timebox">
+          <div class="number" id="hours">0</div>
+          <div class="label">Giờ</div>
+        </div>
+        <div class="timebox">
+          <div class="number" id="minutes">0</div>
+          <div class="label">Phút</div>
+        </div>
+        <div class="timebox">
+          <div class="number" id="seconds">0</div>
+          <div class="label">Giây</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="badge">Múi giờ: <span id="tz"></span></div>
+        <button id="copyBtn">📋 Sao chép liên kết</button>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="message-section">
+      <h2>💌 Gửi Lời Nhắn Cho Tớ Nhé! 💫</h2>
+      <form id="messageForm">
+        <input type="text" id="hoten" placeholder="Họ và tên" required>
+        <input type="text" id="thongtin" placeholder="Thông tin liên hệ (email / số điện thoại)" required>
+        <textarea id="loinhan" placeholder="Lời nhắn gửi tới tương lai..." required></textarea>
+        <button type="submit">Gửi Tin Nhắn</button>
+      </form>
+      <p id="messageStatus"></p>
+    </div>
+  </div>
+
+  <script>
+  // ========== FORM GỬI TIN NHẮN ==========
+  const form = document.getElementById("messageForm");
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = {
+        hoten: document.getElementById("hoten").value.trim(),
+        thongtin: document.getElementById("thongtin").value.trim(),
+        loinhan: document.getElementById("loinhan").value.trim()
+      };
+      const btn = form.querySelector("button[type='submit']");
+      btn.disabled = true;
+      btn.textContent = "Đang gửi...";
+      try {
+        await fetch("https://script.google.com/macros/s/AKfycbzoQQ4nRmVvjN7PtorGQEXYjvfAmlM9UVX6_nLtxmhFbvDQ8ou_1Dy7rzPG3hr6kwv3/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify(data)
+        });
+        document.getElementById("messageStatus").textContent = "🎉 Gửi thành công! Tớ sẽ phản hồi lại sơm! ❤️";
+        form.reset();
+      } catch (err) {
+        document.getElementById("messageStatus").textContent = "⚠️ Gửi thất bại, thử lại nhé!";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Gửi Tin Nhắn";
+      }
+    });
+  }
+
+  // ========== ĐỒNG HỒ ==========
+  const target = new Date();
+  target.setFullYear(target.getFullYear() + 2);
+  const tzEl = document.getElementById("tz");
+  tzEl.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  document.getElementById("targetText").textContent = target.toLocaleString();
+
+  const dEl = document.getElementById("days");
+  const hEl = document.getElementById("hours");
+  const mEl = document.getElementById("minutes");
+  const sEl = document.getElementById("seconds");
+
+  function tick() {
+    const now = new Date();
+    let diff = target - now;
+    if (diff < 0) diff = 0;
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff / 3600000) % 24);
+    const m = Math.floor((diff / 60000) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    dEl.textContent = d;
+    hEl.textContent = h.toString().padStart(2, '0');
+    mEl.textContent = m.toString().padStart(2, '0');
+    sEl.textContent = s.toString().padStart(2, '0');
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // ========== SAO CHÉP LINK ==========
+  document.getElementById("copyBtn").addEventListener("click", async () => {
+    const url = window.location.href;
+    await navigator.clipboard.writeText(url);
+    document.getElementById("copyBtn").textContent = "✅ Đã sao chép!";
+    setTimeout(() => document.getElementById("copyBtn").textContent = "📋 Sao chép liên kết", 2000);
+  });
+
+  // ========== GIAO DIỆN ==========
+  document.getElementById("toggleTheme").addEventListener("click", () => {
+    const root = document.documentElement;
+    const dark = root.style.getPropertyValue("--bg") === "#0f1724" || !root.style.getPropertyValue("--bg");
+    if (dark) {
+      root.style.setProperty("--bg","#f7f8fb");
+      root.style.setProperty("--card","#ffffff");
+      root.style.setProperty("--text","#111827");
+      root.style.setProperty("--text-muted","rgba(0,0,0,0.6)");
+      root.style.setProperty("--glass","rgba(0,0,0,0.04)");
+    } else {
+      root.style.setProperty("--bg","#0f1724");
+      root.style.setProperty("--card","#0b1220");
+      root.style.setProperty("--text","#ffffff");
+      root.style.setProperty("--text-muted","rgba(255,255,255,0.7)");
+      root.style.setProperty("--glass","rgba(255,255,255,0.06)");
+    }
+  });
+  </script>
+</body>
+</html>
